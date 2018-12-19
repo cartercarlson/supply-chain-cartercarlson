@@ -12,6 +12,7 @@ contract SupplyChain {
 		 Call this mappings items
 	*/
 	mapping(uint => Item) public items;
+
 	/* Add a line that creates an enum called State. This should have 4 states
 		ForSale
 		Sold
@@ -20,6 +21,7 @@ contract SupplyChain {
 		(declaring them in this order is important for testing)
 	*/
 	enum State { ForSale, Sold, Shipped, Received }
+
 	/* Create a struct named Item.
 		Here, add a name, sku, price, state, seller, and buyer
 		We've left you to figure out what the appropriate types are,
@@ -33,16 +35,17 @@ contract SupplyChain {
 		address seller;
 		address buyer;
 	}
+
 	/* Create 4 events with the same name as each possible State (see above)
 	Each event should accept one argument, the sku*/
 	event ForSale (uint sku);
 	event Sold (uint sku);
 	event Shipped (uint sku);
 	event Received (uint sku);
-	/* Create a modifer that checks if the msg.sender is the owner of the contract */
-	modifer verifySender() { require (msg.sender == owner); _; }
-	modifier verifyCaller(address _address) { require (msg.sender == _address); _;}
 
+	/* Create a modifer that checks if the msg.sender is the owner of the contract */
+	// modifer verifySender() { require (msg.sender == owner); _; }
+	modifier verifyCaller(address _address) { require (msg.sender == _address); _;}
 	modifier paidEnough(uint _price) { require(msg.value >= _price); _;}
 	modifier checkValue(uint _sku) {
 		//refund them after pay for item (why it is before, _ checks for logic before func)
@@ -55,11 +58,10 @@ contract SupplyChain {
 	/* For each of the following modifiers, use what you learned about modifiers
 	 to give them functionality. For example, the forSale modifier should require
 	 that the item with the given sku has the state ForSale. */
-	modifier forSale() {}
-	modifier sold() {}
-	modifier shipped() {}
-	modifier received() {}
-
+	modifier forSale(uint _sku) { require(items[_sku].state == 'ForSale'); _; }
+	modifier sold(uint _sku) { require(items[_sku].state == 'Sold'); _; }
+	modifier shipped(uint _sku) { require(items[_sku].state == 'Shipped'); _; }
+	modifier received(uint _sku) { require(items[_sku].state == 'Received'); _; }
 
 	constructor() public {
 		/* Here, set the owner as the person who instantiated the contract
@@ -83,28 +85,37 @@ contract SupplyChain {
 		to Sold. Be careful, this function should use 3 modifiers to check if the item is for sale,
 		if the buyer paid enough, and check the value after the function is called to make sure the buyer is
 		refunded any excess ether sent. Remember to call the event associated with this function!*/
-
-	function buyItem(uint sku)
+	function buyItem(uint _sku)
 		public
 		payable
 	{
-
+		emit Sold(_sku);
+		forSale(_sku);
+		paidEnough(items[_sku].price);
+		checkValue(_sku);
+		items[_sku].buyer = msg.sender;
+		items[_sku].state = 'Sold';
 	}
 
 	/* Add 2 modifiers to check if the item is sold already, and that the person calling this function
 	is the seller. Change the state of the item to shipped. Remember to call the event associated with this function!*/
-	function shipItem(uint sku)
+	function shipItem(string _name, uint _sku)
 		public
 	{
-		emit
+		emit Shipped(_sku);
+		verifyCaller(msg.sender);
+		sold(_sku);
 	}
 
 	/* Add 2 modifiers to check if the item is shipped already, and that the person calling this function
 	is the buyer. Change the state of the item to received. Remember to call the event associated with this function!*/
-	function receiveItem(uint sku)
+	function receiveItem(uint _sku)
 		public
 	{
-
+		emit Received(_sku);
+		shipped(_sku);
+		received(_sku);
+		items[_sku].state = 'Received';
 	}
 
 	/* We have these functions completed so we can run tests, just ignore it :) */
