@@ -85,7 +85,14 @@ contract SupplyChain {
 		returns(bool)
 	{
 		emit ForSale(skuCount);
-		items[skuCount] = Item({name: _name, sku: skuCount, price: _price, state: State.ForSale, seller: msg.sender, buyer: 0});
+		items[skuCount] = Item({
+			name: _name,
+			sku: skuCount,
+			price: _price,
+			state: State.ForSale,
+			seller: msg.sender,
+			buyer: 0
+		});
 		skuCount = skuCount + 1;
 		return true;
 	}
