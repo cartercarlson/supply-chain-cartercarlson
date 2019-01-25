@@ -2,7 +2,7 @@ pragma solidity ^0.4.23;
 
 contract SupplyChain {
 
-	/* VARIABLE DECLARATION */
+	/* VARIABLES */
 	address public owner;
 	int public skuCount;
 
@@ -19,7 +19,7 @@ contract SupplyChain {
 		uint price;
 		uint state;
 		address seller;
-		address buyer;
+		address buyer;,
 	}
 
 	/* EVENTS */
@@ -46,6 +46,37 @@ contract SupplyChain {
 	constructor() public {
 		owner = msg.sender;
 		skuCount = 0;
+	}
+
+	/* VIEWS */
+	function viewItem(uint _sku)
+		public
+		view
+		returns (uint[6])
+	{
+		name = items[_sku].name;
+		sku = items[_sku].sku;
+		price = items[_sku].price;
+		state = items[_sku].state;
+		seller = items[_sku].seller;
+		buyer = items[_sku].buyer;
+		return (name, sku, price, state, seller, buyer);		
+	}
+
+	function viewOwner()
+		public
+		view
+		returns (address)
+	{
+		return owner;
+	}
+
+	function viewSkuCount()
+		public
+		view
+		returns (uint)
+	{
+		return skuCount;
 	}
 
 	/* FUNCTIONS */
